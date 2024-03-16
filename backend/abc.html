@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Upload</title>
+</head>
+<body>
+    <input type="file" id="imageInput">
+    <button onclick="uploadImage()">Upload Image</button>
+    <br>
+    <img id="uploadedImage" style="display: none; max-width: 300px; max-height: 300px;">
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        async function upLoadFiles1(files) {
+            if (files) {
+                const CLOUD_NAME = "dllc8aaxl";
+                const PRESET_NAME = "NienLuan";
+                const FOLDER_NAME = "NienLuan";
+                const urls = [];
+                const api = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+                const formData = new FormData();
+
+                formData.append("upload_preset", PRESET_NAME);
+                formData.append("folder", FOLDER_NAME);
+
+                for (const file of files) {
+                    formData.append("file", file);
+
+                    const response = await axios.post(api, formData, {
+                        headers: {
+                            "content-type": "multipart/formdata"
+                        },
+                    });
+                    urls.push(response.data.secure_url);
+                }
+                return urls;
+            }
+        }
+
+        async function uploadImage() {
+            const imageInput = document.getElementById("imageInput");
+            const file = imageInput.files[0];
+
+            if (file) {
+                try {
+                    const urls = await upLoadFiles1([file]);
+                    if (urls.length > 0) {
+                        console.log("Image uploaded successfully. URL:", urls[0]);
+
+                        // Hiển thị ảnh sau khi tải lên
+                        const uploadedImage = document.getElementById("uploadedImage");
+                        uploadedImage.style.display = "block";
+                        uploadedImage.src = urls[0];
+                    } else {
+                        console.log("Image upload failed.");
+                    }
+                } catch (error) {
+                    console.error("Error uploading image:", error);
+                }
+            } else {
+                console.log("Please select an image to upload.");
+            }
+        }
+    </script>
+</body>
+</html>
